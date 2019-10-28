@@ -7,6 +7,15 @@ Doorkeeper.configure do
     current_user || warden.authenticate!(scope: :user)
   end
 
+  resource_owner_from_credentials do |_routes|
+    user = User.find_for_database_authentication(email: params[:username])
+    if user&.valid_for_authentication? { user.valid_password?(params[:password]) } && user&.active_for_authentication?
+      request.env['warden'].set_user(user, scope: :user, store: false)
+
+      user
+    end
+  end
+
   # If you didn't skip applications controller from Doorkeeper routes in your application routes.rb
   # file then you need to declare this block in order to restrict access to the web interface for
   # adding oauth authorized applications. In other case it will return 403 Forbidden response
@@ -154,8 +163,8 @@ Doorkeeper.configure do
   # For more information go to
   # https://github.com/doorkeeper-gem/doorkeeper/wiki/Using-Scopes
   #
-  default_scopes :read
-  optional_scopes :write
+  # default_scopes :read
+  # optional_scopes :write
 
   # Define scopes_by_grant_type to restrict only certain scopes for grant_type
   # By default, all the scopes will be available for all the grant types.
@@ -170,7 +179,7 @@ Doorkeeper.configure do
   # not in configuration, i.e. `default_scopes` or `optional_scopes`.
   # (disabled by default)
   #
-  enforce_configured_scopes
+  # enforce_configured_scopes
 
   # Change the way client credentials are retrieved from the request object.
   # By default it retrieves first from the `HTTP_AUTHORIZATION` header, then
@@ -263,7 +272,7 @@ Doorkeeper.configure do
   #   http://tools.ietf.org/html/rfc6819#section-4.4.2
   #   http://tools.ietf.org/html/rfc6819#section-4.4.3
   #
-  # grant_flows %w[authorization_code client_credentials]
+  grant_flows %w[password]
 
   # Hook into the strategies' request & response life-cycle in case your
   # application needs advanced customization or logging:

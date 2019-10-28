@@ -28,15 +28,22 @@ module DoorkeeperProvider
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
 
+    config.middleware.insert_before 0, Rack::Cors do
+      allow do
+        origins '*'
+        resource '*', headers: :any, methods: [:get, :post, :options]
+      end
+    end
+
     config.to_prepare do
       # Only Applications list
       Doorkeeper::ApplicationsController.layout 'application'
 
       # Only Authorization endpoint
-      # Doorkeeper::AuthorizationsController.layout 'application'
+      Doorkeeper::AuthorizationsController.layout 'application'
 
       # Only Authorized Applications
-      # Doorkeeper::AuthorizedApplicationsController.layout 'application'
+      Doorkeeper::AuthorizedApplicationsController.layout 'application'
     end
   end
 end

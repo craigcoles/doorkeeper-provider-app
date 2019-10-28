@@ -20,6 +20,7 @@ gem "rollbar"
 
 gem "puma"
 gem "rack-timeout"
+gem "rack-cors"
 
 group :development do
   gem "listen"
